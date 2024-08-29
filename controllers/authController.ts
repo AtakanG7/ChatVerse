@@ -1,5 +1,5 @@
 import { createUser, verifyUser, getUserByEmail } from '../models/User';
-import { sendVerificationEmail } from '../utils/email';
+import { sendVerificationEmail } from '../lib/email';
 
 export const registerUser = async (name: string, email: string) => {
   const existingUser = await getUserByEmail(email);

@@ -1,7 +1,7 @@
 import { createServer } from 'http';
 import { parse } from 'url';
 import next from 'next';
-import { setupSocketServer } from './app/controllers/chatController.js';
+import { setupSocketServer } from './controllers/chatController.js';
 
 
 const dev = process.env.NODE_ENV !== 'production';

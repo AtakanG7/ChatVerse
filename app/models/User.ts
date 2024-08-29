@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { prisma } from '../utils/db';
+import { prisma } from '../lib/db';
 
 export interface User {
   id: string;

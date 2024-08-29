@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { registerUser, verifyUserEmail } from '../../controllers/authController';
+import { registerUser, verifyUserEmail } from '../../../controllers/authController.js';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {

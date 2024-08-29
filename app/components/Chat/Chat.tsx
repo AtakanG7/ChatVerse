@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
-import Skeleton from './Skeleton';
-import EmailModal from './EmailModal';
-import CodeModal from './CodeModal';
-import Message from './Message';
+import Skeleton from '../Common/Skeleton';
+import EmailModal from '../Auth/EmailModal';
+import CodeModal from '../Auth/CodeModal';
+import Message from '../Chat/Message';
 
 const socket = io(); 
 
@@ -86,12 +86,6 @@ const Chat = () => {
     console.log('Sharing message:', msg);
   };
 
-  const handleEditMessage = (msg: Message, newText: string) => {
-    setMessages(messages.map(m => 
-      m === msg ? { ...m, text: newText } : m
-    ));
-  };
-
   const handleDeleteMessage = (msg: Message) => {
     setMessages(messages.filter(m => m !== msg));
   };
@@ -125,7 +119,7 @@ const Chat = () => {
             {messages.map((msg, index) => (
               <Message
                 key={index}
-                msg={{ id: index.toString(), ...msg }}
+                msg={{ ...msg, createdAt: new Date(msg.createdAt) }}
                 currentUserId={socket.id || ''}
                 onShare={() => handleShareMessage(msg)}
                 onDelete={() => handleDeleteMessage(msg)} 
@@ -154,7 +148,6 @@ const Chat = () => {
 
 export default Chat;
 
-// Types
 type User = {
   id: string;
   name: string;
