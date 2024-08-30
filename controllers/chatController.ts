@@ -1,4 +1,7 @@
 import { Server } from 'socket.io';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export const setupSocketServer = (server: any) => {
   const io = new Server(server);
@@ -21,4 +24,33 @@ export const setupSocketServer = (server: any) => {
   });
 
   return io;
+};
+
+export const userConnectionController = {
+  create: async (userId: string, connectedUserId: string) => {
+    return prisma.userConnection.create({
+      data: {
+        userId,
+        connectedUserId,
+      },
+    });
+  },
+
+  getConnections: async (userId: string) => {
+    return prisma.userConnection.findMany({
+      where: { userId },
+      include: { connectedUser: true },
+    });
+  },
+
+  deleteConnection: async (userId: string, connectedUserId: string) => {
+    return prisma.userConnection.deleteMany({
+      where: {
+        OR: [
+          { userId, connectedUserId },
+          { userId: connectedUserId, connectedUserId: userId },
+        ],
+      },
+    });
+  },
 };

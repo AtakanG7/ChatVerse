@@ -4,6 +4,7 @@ import "./styles/globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
+
 export const metadata: Metadata = {
   title: "Chat App",
   description: "A simple chat application using Next.js and WebSocket",
