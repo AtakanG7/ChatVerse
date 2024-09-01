@@ -75,7 +75,7 @@ export const authController = {
 
   verifyToken: async (token: string): Promise<User | null> => {
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email: string };
+      const decoded = jwt.verify(token, JWT_SECRET) as { email: string };
       const user = await prisma.user.findUnique({ where: { email: decoded.email } });
       return user;
     } catch (error) {

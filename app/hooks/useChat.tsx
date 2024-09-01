@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@prisma/client';
 import { MessageType } from '@/types/prisma';
+import io from 'socket.io-client';
 
 interface ChatContextType {
   isLoading: boolean;
@@ -10,66 +11,72 @@ interface ChatContextType {
   messages: MessageType[];
   sendMessage: (recipientId: string, content: string) => void;
   connectToUser: (userId: string) => Promise<void>;
-  handleShareMessage: (msg: MessageType) => void;
-  handleDeleteMessage: (msg: MessageType) => void;
+  currentChat: User[] | undefined;
+  setCurrentChat: (user: User[]) => void;
+  setMessages: (messages: MessageType[]) => void;
+  setIsLoading: (isLoading: boolean) => void;
+  setUser: (user: User | undefined) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
-export const ChatProvider: React.FC<{ children: React.ReactNode; currentUserId: string }> = ({ children, currentUserId }) => {
+export const ChatProvider: React.FC<{ children: React.ReactNode; }> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [connections, setConnections] = useState<User[]>([]);
   const [messages, setMessages] = useState<MessageType[]>([]);
-  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [socket, setSocket] = useState<any>(null);
+  const [currentChat, setCurrentChat] = useState<User[] | undefined>(undefined);
+  const [user, setUser] = useState<User | undefined>(undefined);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:3000/');
+    const newSocket = io('http://localhost:3000');
 
-    ws.onopen = () => {
-      console.log('WebSocket connected');
+    newSocket.on('connect', () => {
+      console.log('Socket.IO connected');
       setIsLoading(false);
-    };
+    });
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'message') {
-        setMessages(prev => [...prev, data.message]);
-      }
-    };
+    newSocket.on('message', (message: MessageType) => {
+      console.log(message)
+      setMessages(prev => [...prev, message]);
+    });
 
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
+    newSocket.on('error', (error: any) => {
+      console.error('Socket.IO error:', error);
       setIsLoading(false);
-    };
+    });
 
-    ws.onclose = () => {
-      console.log('WebSocket disconnected');
+    newSocket.on('disconnect', () => {
+      console.log('Socket.IO disconnected');
       setIsLoading(false);
-    };
+    });
 
-    setSocket(ws);
-
-    // Fetch initial connections
-    fetchConnections();
+    setSocket(newSocket);
 
     return () => {
-      ws.close();
+      newSocket.disconnect();
     };
-  }, [currentUserId]);
-
-  const fetchConnections = async () => {
-    try {
-      const response = await fetch(`/api/connections?userId=${currentUserId}`);
-      const data = await response.json();
-      setConnections(data);
-    } catch (error) {
-      console.error('Failed to fetch connections:', error);
+  }, [user]);
+ 
+  useEffect(() => {
+    if (socket && currentChat) {
+      const roomIdentifier = [user?.id, currentChat[0].id].sort().join('-');
+      socket.emit('joinRoom', roomIdentifier);
+      console.log('Joined room:', roomIdentifier);
     }
-  };
+  }, [currentChat, socket, user]);
 
   const sendMessage = (recipientId: string, content: string) => {
     if (socket) {
-      socket.send(JSON.stringify({ type: 'message', recipientId, content }));
+      const message: MessageType = {
+        senderId: user?.id,
+        recipientId,
+        content,
+        createdAt: new Date(),
+      };
+      const roomIdentifier = [user?.id, recipientId].sort().join('-');
+      socket.emit('joinRoom', roomIdentifier);
+      socket.emit('message', { room: roomIdentifier, message });
     }
   };
 
@@ -80,23 +87,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; currentUserId: 
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId: currentUserId, connectedUserId: userId }),
+        body: JSON.stringify({ userId: user, connectedUserId: userId }),
       });
       const newConnection = await response.json();
       setConnections(prev => [...prev, newConnection]);
     } catch (error) {
       console.error('Failed to connect to user:', error);
     }
-  };
-
-  const handleShareMessage = (msg: MessageType) => {
-    console.log('Sharing message:', msg);
-    // Implement share functionality
-  };
-
-  const handleDeleteMessage = (msg: MessageType) => {
-    setMessages(messages.filter(m => m !== msg));
-    // Implement delete functionality if needed
   };
 
   return (
@@ -106,8 +103,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; currentUserId: 
       messages, 
       sendMessage, 
       connectToUser,
-      handleShareMessage,
-      handleDeleteMessage
+      currentChat,
+      setCurrentChat,
+      setMessages,
+      setIsLoading,
+      setUser
     }}>
       {children}
     </ChatContext.Provider>

@@ -19,5 +19,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   await ideaController.delete(params.id);
-  return NextResponse.json({ message: 'Idea deleted successfully' });
+  return NextResponse.json({ message: 'Idea deleted successfully' }, { status: 200 });
 }
+
+

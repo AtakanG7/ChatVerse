@@ -1,5 +1,6 @@
 import { Server } from 'socket.io';
 import { PrismaClient } from '@prisma/client';
+import { MessageType } from '@/types/prisma';
 
 const prisma = new PrismaClient();
 
@@ -9,13 +10,16 @@ export const setupSocketServer = (server: any) => {
   io.on('connection', (socket) => {
     console.log('New client connected');
 
-    socket.on('join', (userId) => {
-      socket.join(userId);
-      console.log(`User ${userId} joined`);
+    socket.on('joinRoom', async (roomIdentifier: string) => {
+      socket.join(roomIdentifier);
+      console.log(`User joined room: ${roomIdentifier}`);
     });
 
-    socket.on('chat message', (msg) => {
-      io.emit('chat message', msg);
+    socket.on('message', async ({ room, message }: { room: string, message: MessageType }) => {
+      await saveMessageToDatabase(message);
+
+      io.to(room).emit('message', message);
+      console.log(`Message sent to room ${room}:`, message);
     });
 
     socket.on('disconnect', () => {
@@ -26,31 +30,20 @@ export const setupSocketServer = (server: any) => {
   return io;
 };
 
-export const userConnectionController = {
-  create: async (userId: string, connectedUserId: string) => {
-    return prisma.userConnection.create({
+
+const saveMessageToDatabase = async (message: MessageType) => {
+  try {
+    return await prisma.message.create({
       data: {
-        userId,
-        connectedUserId,
+        senderId: message.senderId,
+        recipientId: message.recipientId,
+        content: message.content,
+        createdAt: message.createdAt,
       },
     });
-  },
-
-  getConnections: async (userId: string) => {
-    return prisma.userConnection.findMany({
-      where: { userId },
-      include: { connectedUser: true },
-    });
-  },
-
-  deleteConnection: async (userId: string, connectedUserId: string) => {
-    return prisma.userConnection.deleteMany({
-      where: {
-        OR: [
-          { userId, connectedUserId },
-          { userId: connectedUserId, connectedUserId: userId },
-        ],
-      },
-    });
-  },
+  } catch (error) {
+    console.error('Error saving message to database:', error);
+  }
 };
+
+

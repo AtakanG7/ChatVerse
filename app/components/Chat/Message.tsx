@@ -1,67 +1,33 @@
-"use client";
+import React from 'react';
+import { MessageType } from '@/types/prisma';
 
-import React, { useState } from 'react';
-import { format } from 'date-fns';
-import MessageOptions from './MessageOptions';
-
-type Message = {
-  id: string;
-  userId: string;
-  name: string;
-  text: string;
-  createdAt: Date;
+interface MessageProps {
+  msg: MessageType;
+  isCurrentUser: boolean;
 }
 
-const MessageComponent = ({ msg, currentUserId, onShare, onDelete }: {
-  msg: Message;
-  currentUserId: string;
-  onShare: (message: Message) => void;
-  onDelete?: (id: string) => void;
-}) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedText, setEditedText] = useState(msg.text);
-
-  const handleShare = () => {
-    onShare(msg);
-  };
-
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
-
-  const handleDelete = () => {
-    onDelete?.(msg.userId);
-  };
-
-  const isCurrentUser = msg.userId === currentUserId;
-
+export const Message: React.FC<MessageProps> = ({ msg, isCurrentUser }) => {
   return (
-    <div className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} group relative`}>
-      <div className={`max-w-xs lg:max-w-md xl:max-w-lg px-4 py-2 rounded-lg ${isCurrentUser ? 'bg-indigo-600' : 'bg-gray-600'}`}>
-        <div className="font-bold">{msg.name}</div>
-        {isEditing ? (
-          <div>
-            <input
-              type="text"
-              value={editedText}
-              onChange={(e) => setEditedText(e.target.value)}
-              className="w-full p-1 bg-gray-700 text-white rounded"
-            />
-          </div>
-        ) : (
-          <div>{msg.text}</div>
-        )}
-        <div className="text-xs text-gray-400 mt-1">
-          {format(new Date(msg.createdAt), 'HH:mm')}
+    <div className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-4`}>
+      <div
+        className={`relative max-w-xs lg:max-w-md xl:max-w-lg px-4 py-3 rounded-2xl shadow-md ${
+          isCurrentUser ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-200'
+        }`}
+      >
+        <div className="flex items-end">
+          <span className="block">{msg.content}</span>
+          <span className={`ml-2 text-xs text-gray-300 ${isCurrentUser ? 'text-right' : 'text-left'}`}>
+            {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </span>
         </div>
-        <MessageOptions
-          onShare={handleShare}
-          onDelete={isCurrentUser ? handleDelete : (() => {})}
-        />
+        <div className={`absolute bottom-0 ${isCurrentUser ? 'right-0 -mr-1' : 'left-0 -ml-1'}`}>
+          <div
+            className={`w-3 h-3 transform rotate-45 ${
+              isCurrentUser ? 'bg-blue-500' : 'bg-gray-700'
+            }`}
+          />
+        </div>
       </div>
     </div>
   );
 };
-
-export default MessageComponent;
-

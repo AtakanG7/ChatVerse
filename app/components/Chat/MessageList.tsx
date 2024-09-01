@@ -1,28 +1,31 @@
-import React from 'react';
-import Message from './Message';
+// MessageList.tsx
+import React, { useRef, useEffect } from 'react';
+import { Message } from './Message';
 import { MessageType } from '@/types/prisma';
 
 interface MessageListProps {
   messages: MessageType[];
-  currentUserId: string;
-  onShare: (msg: MessageType) => void;
-  onDelete: (msg: MessageType) => void;
+  currentUserId?: string;
 }
 
-const MessageList: React.FC<MessageListProps> = ({ messages, currentUserId, onShare, onDelete }) => {
+export const MessageList: React.FC<MessageListProps> = ({ messages, currentUserId}) => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.scrollTop = ref.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+    <div ref={ref} className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
       {messages.map((msg, index) => (
         <Message
           key={index}
           msg={msg}
-          currentUserId={currentUserId}
-          onShare={() => onShare(msg)}
-          onDelete={() => onDelete(msg)}
+          isCurrentUser={msg.senderId === currentUserId}
         />
       ))}
     </div>
   );
 };
-
-export default MessageList;

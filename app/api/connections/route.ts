@@ -1,6 +1,7 @@
 // app/api/connections/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { userConnectionController } from '@/controllers/chatController';
+import { connectionController } from '@/controllers/connectionController';
+import { Prisma } from '@prisma/client';
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
@@ -10,18 +11,30 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
   }
 
-  const connectedUsers = await userConnectionController.getConnections(userId);
-  return NextResponse.json(connectedUsers);
+  const connectedUserObjects = await connectionController.getAll(userId);
+  const users = connectedUserObjects.map((connection) => connection.connectedUser);
+  return NextResponse.json(users);
 }
 
 export async function POST(req: NextRequest) {
-  const { userId, connectedUserId } = await req.json();
-  const connection = await userConnectionController.create(userId, connectedUserId);
-  return NextResponse.json(connection);
+  try {
+    const { userId, connectedUserId } = await req.json();
+    if (!userId || !connectedUserId) {
+      return NextResponse.json({ error: 'User ID and connectedUserId are required' }, { status: 400 });
+    }
+    const connection = await connectionController.create(userId, connectedUserId);
+    return NextResponse.json(connection);
+  } catch (error) {
+    console.error('Error creating connection:', error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      return NextResponse.json({ error: 'This connection already exists' }, { status: 409 });
+    }
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
 }
 
 export async function DELETE(req: NextRequest) {
   const { userId, connectedUserId } = await req.json();
-  await userConnectionController.deleteConnection(userId, connectedUserId);
+  await connectionController.delete(userId);
   return NextResponse.json({ message: 'Connection deleted successfully' });
 }

@@ -1,6 +1,7 @@
 'use client';
 // app/hooks/useIdeas.ts
 import { createContext, useContext, useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 interface Idea {
   id: string;
@@ -18,7 +19,7 @@ interface Comment {
 
 interface IdeasContextType {
   ideas: Idea[];
-  postIdea: (content: string) => Promise<void>;
+  postIdea: (content: string, author: string) => Promise<void>;
   likeIdea: (ideaId: string) => Promise<void>;
   commentOnIdea: (ideaId: string, content: string) => Promise<void>;
 }
@@ -44,15 +45,16 @@ export const IdeasProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const postIdea = async (content: string) => {
+  const postIdea = async (content: string, authorId: string) => {
     try {
       const response = await fetch('/api/ideas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content, authorId }),
       });
       if (!response.ok) throw new Error('Failed to post idea');
       const newIdea = await response.json();
+      console.log(newIdea);
       setIdeas(prev => [newIdea, ...prev]);
     } catch (error) {
       console.error('Post idea error:', error);
@@ -60,12 +62,22 @@ export const IdeasProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const likeIdea = async (ideaId: string) => {
+  const likeIdea = async (ideaId: string, userId: string) => {
     try {
-      const response = await fetch(`/api/ideas/${ideaId}/like`, { method: 'POST' });
-      if (!response.ok) throw new Error('Failed to like idea');
-      const updatedIdea = await response.json();
-      setIdeas(prev => prev.map(idea => idea.id === ideaId ? updatedIdea : idea));
+      const response = await fetch(`/api/ideas/likes/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ideaId, userId }),
+      });
+      if (!response.ok) {
+        if (response.status === 409) {
+          toast.info('You have already liked this idea');
+        } else {
+          toast.error('Failed to like idea');
+        }
+      }else{
+        toast.success('Idea liked successfully');
+      }
     } catch (error) {
       console.error('Like idea error:', error);
       throw error;
