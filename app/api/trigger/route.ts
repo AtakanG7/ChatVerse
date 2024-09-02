@@ -6,7 +6,7 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 export async function GET(req: NextRequest) {
   try {
     const response = await axios.post(
-      'https://api.github.com/repos/tmp-atakang7/CronJobs/actions/workflows/keepawake.yml/dispatches',
+      'https://api.github.com/repos/atakang7/CronJobs/actions/workflows/keepawake.yml/dispatches',
       {
         ref: 'main', 
       },
