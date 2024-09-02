@@ -29,25 +29,24 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; }> = ({ childre
   const [user, setUser] = useState<User | undefined>(undefined);
 
   useEffect(() => {
-    const newSocket = io('http://localhost:3000');
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const port = window.location.port || "3000"; 
+    
+    const newSocket = io(`${protocol}://${window.location.hostname}:${port}`);
 
     newSocket.on('connect', () => {
-      console.log('Socket.IO connected');
       setIsLoading(false);
     });
 
     newSocket.on('message', (message: MessageType) => {
-      console.log(message)
       setMessages(prev => [...prev, message]);
     });
 
     newSocket.on('error', (error: any) => {
-      console.error('Socket.IO error:', error);
       setIsLoading(false);
     });
 
     newSocket.on('disconnect', () => {
-      console.log('Socket.IO disconnected');
       setIsLoading(false);
     });
 
@@ -62,7 +61,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; }> = ({ childre
     if (socket && currentChat) {
       const roomIdentifier = [user?.id, currentChat[0].id].sort().join('-');
       socket.emit('joinRoom', roomIdentifier);
-      console.log('Joined room:', roomIdentifier);
     }
   }, [currentChat, socket, user]);
 

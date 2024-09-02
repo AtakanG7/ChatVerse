@@ -1,12 +1,11 @@
-FROM node:16 as build
+FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
+RUN npx prisma generate
 RUN npm run build
-
-FROM node:16-alpine as runtime
-WORKDIR /app
-COPY --from=build /app/out ./
 EXPOSE 3000
-CMD ["npm", "start"]
+ENV NODE_ENV=production
+RUN npx prisma generate
+CMD ["node", "--loader", "ts-node/esm", "./server.ts"]

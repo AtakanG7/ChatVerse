@@ -12,7 +12,32 @@ export async function GET(req: NextRequest) {
   }
 
   const connectedUserObjects = await connectionController.getAll(userId);
-  const users = connectedUserObjects.map((connection) => connection.connectedUser);
+  type Connection = {
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      verified: boolean;
+      createdAt: Date;
+      updatedAt: Date;
+      resetToken: string | null;
+      resetTokenExpires: Date | null;
+    };
+    connectedUser: {
+      id: string;
+      name: string;
+      email: string;
+      verified: boolean;
+      createdAt: Date;
+      updatedAt: Date;
+      resetToken: string | null;
+      resetTokenExpires: Date | null;
+    };
+  } & {
+    [key: string]: any;
+  };
+
+  const users = connectedUserObjects.map((connection: Connection) => connection.connectedUser);
   return NextResponse.json(users);
 }
 

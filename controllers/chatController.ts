@@ -5,7 +5,27 @@ import { MessageType } from '@/types/prisma';
 const prisma = new PrismaClient();
 
 export const setupSocketServer = (server: any) => {
-  const io = new Server(server);
+  const io = new Server(server, {
+    cors: {
+      origin: (origin: string | undefined, callback) => {
+        const allowedOrigins = [
+          `http://${server.address().address}:${server.address().port}`,
+          `https://${server.address().address}:${server.address().port}`,
+          'https://chat.atakangul.com', 
+          'http://localhost:3000',
+        ];
+
+        if (allowedOrigins.includes(origin ?? '') || !origin) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
+      methods: ["GET", "POST"],
+      allowedHeaders: ["my-custom-header"],
+      credentials: true,
+    },
+  }).on('error', (err) => console.error('Socket.IO error:', err));
 
   io.on('connection', (socket) => {
     console.log('New client connected');

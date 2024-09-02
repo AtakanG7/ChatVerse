@@ -11,7 +11,6 @@ import SearchUsers from '../Search/SearchUsers';
 import { User } from '@prisma/client';
 import Skeleton from '../Common/Skeleton';
 
-// Dummy connection users
 const dummyConnections: User[] = [
   {
     id: '66d2219ca8844f3b6cd0cc14',
@@ -25,7 +24,6 @@ const dummyConnections: User[] = [
   },
 ];
 
-// Define props interface
 interface ChatContentProps {
   user: User;
 }
