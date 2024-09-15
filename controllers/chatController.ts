@@ -14,7 +14,7 @@ export const setupSocketServer = (server: any) => {
           'https://chat.atakangul.com', 
           'http://localhost:3000',
         ];
-
+        console.log(allowedOrigins);
         if (allowedOrigins.includes(origin ?? '') || !origin) {
           callback(null, true);
         } else {
@@ -49,7 +49,6 @@ export const setupSocketServer = (server: any) => {
 
   return io;
 };
-
 
 const saveMessageToDatabase = async (message: MessageType) => {
   try {

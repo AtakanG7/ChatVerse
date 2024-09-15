@@ -30,9 +30,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; }> = ({ childre
 
   useEffect(() => {
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const port = window.location.port || "3000"; 
+    const hostname = window.location.hostname;
     
-    const newSocket = io(`${protocol}://${window.location.hostname}:${port}`);
+    let url: string;
+    if (hostname === 'localhost' || hostname.startsWith('192.168.') || hostname.startsWith('10.')) {
+      const port = window.location.port || '3000';
+      url = `${protocol}://${hostname}:${port}`;
+    } else {
+      url = `${protocol}://${hostname}`;
+    }
+
+    const newSocket = io(url);
+    console.log(`Connecting to WebSocket server at: ${url}`);
 
     newSocket.on('connect', () => {
       setIsLoading(false);
@@ -43,6 +52,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; }> = ({ childre
     });
 
     newSocket.on('error', (error: any) => {
+      console.error('WebSocket error:', error);
       setIsLoading(false);
     });
 

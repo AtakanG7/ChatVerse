@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { toast } from 'react-toastify'; // Import toast
-import { useAuth } from '../../hooks/useAuth';
+import { toast } from 'react-toastify'; 
 import { useChat } from '../../hooks/useChat';
 import { ChatSidebar } from './ChatSideBar';
 import ChatHeader from './ChatHeader';
@@ -9,7 +8,6 @@ import MessageInput from './MessageInput';
 import PostsScreen from '../Posts/PostsScreen';
 import SearchUsers from '../Search/SearchUsers';
 import { User } from '@prisma/client';
-import Skeleton from '../Common/Skeleton';
 
 const dummyConnections: User[] = [
   {
@@ -49,28 +47,32 @@ export const ChatContent: React.FC<ChatContentProps> = ({ user }) => {
   }, [user]);
 
   useEffect(() => {
-    if(!client || isLoading || client===undefined) {
-      return;
-    }
     // Fetch initial connections
     fetchConnections();
   }, [client]);
 
   const fetchConnections = async () => {
+    console.log('Fetching connections...');
     try {
       if (client === undefined) {
+        console.log('Client is undefined, skipping fetching connections');
         return;
       }
       const response = await fetch(`/api/connections?userId=${client.id}`);
+      console.log('Response status:', response.status);
       if (!response.ok) {
         if (response.status === 409) {
+          console.log('Conflict error, you are already friends with this user');
           toast.error('You are already friends with this user');
         } else {
+          console.error('Failed to fetch connections:', response);
           throw new Error('Failed to fetch connections');
         }
       }
       const data = await response.json();
+      console.log('Fetched connections:', data);
       setAllConnections([...allConnections, ...data]);
+      console.log('Updated connections:', allConnections);
       toast.success('Connections fetched successfully'); 
     } catch (error) {
       console.error('Failed to fetch connections:', error);
@@ -110,7 +112,7 @@ export const ChatContent: React.FC<ChatContentProps> = ({ user }) => {
     setCurrentChat([selectedUser]);
     setCurrentFeature(null);
     setSidebarOpen(false);
-    toast.info(`Selected user: ${selectedUser.name}`, { autoClose: 1000 }); // Info toast
+    toast.info(`Selected user: ${selectedUser.name}`, { autoClose: 1000 });
   }, [setCurrentChat]);
 
   const handleFeatureChange = useCallback((feature: 'posts' | 'search' | 'future') => {
@@ -121,8 +123,6 @@ export const ChatContent: React.FC<ChatContentProps> = ({ user }) => {
   const toggleSidebar = useCallback(() => {
     setSidebarOpen(prev => !prev);
   }, []);
-
-
 
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white md:flex-row">
