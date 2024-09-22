@@ -52,17 +52,13 @@ export const ChatContent: React.FC<ChatContentProps> = ({ user }) => {
   }, [client]);
 
   const fetchConnections = async () => {
-    console.log('Fetching connections...');
     try {
       if (client === undefined) {
-        console.log('Client is undefined, skipping fetching connections');
         return;
       }
       const response = await fetch(`/api/connections?userId=${client.id}`);
-      console.log('Response status:', response.status);
       if (!response.ok) {
         if (response.status === 409) {
-          console.log('Conflict error, you are already friends with this user');
           toast.error('You are already friends with this user');
         } else {
           console.error('Failed to fetch connections:', response);
@@ -70,9 +66,7 @@ export const ChatContent: React.FC<ChatContentProps> = ({ user }) => {
         }
       }
       const data = await response.json();
-      console.log('Fetched connections:', data);
       setAllConnections([...allConnections, ...data]);
-      console.log('Updated connections:', allConnections);
       toast.success('Connections fetched successfully'); 
     } catch (error) {
       console.error('Failed to fetch connections:', error);
