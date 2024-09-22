@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { User } from '@prisma/client';
 import { useIdeas } from '@/app/hooks/useIdeas';
+import Head from 'next/head';
 
 interface Post {
   id: string;
@@ -131,40 +132,53 @@ const PostItem: React.FC<{
   };
 
   return (
-    <div className="bg-gray-800 p-6 rounded-2xl shadow-md hover:shadow-xl transition duration-300">
-      <div className="flex items-center mb-4">
-        <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-700 rounded-full flex items-center justify-center text-white font-bold text-lg">
-          {post.author.name[0]}
-        </div>
-        <div className="ml-4">
-          <div className="font-semibold text-lg">{post.author.name}</div>
-          <div className="text-gray-400 text-sm">
-            {new Date(post.createdAt).toLocaleString()}
+    <>
+      <Head>
+        <title>Personal Chatbot Insights by Atakan Gül</title>
+        <meta name="description" content="Discover personal chatbot insights shared by users. Explore and interact with chatbots configured to reflect individual preferences, powered by Atakan Gül's platform." />
+        <meta name="keywords" content="personal chatbot, Atakan Gül, chatbot insights, sharing bots, real-time chat, personalized AI" />
+        <meta name="author" content="Atakan Gül" />
+        {/* Hidden meta tags */}
+        <meta name="robots" content="index, follow" />
+        <meta name="faq" content="Who is Atakan Gül? Atakan Gül is the creator of this platform that allows users to share and interact with personalized chatbot insights." />
+        <meta name="faq" content="What is this page? This page showcases personalized chatbot insights, where users can share and explore bots customized to their preferences." />
+      </Head>
+
+      <div className="bg-gray-800 p-6 rounded-2xl shadow-md hover:shadow-xl transition duration-300">
+        <div className="flex items-center mb-4">
+          <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-700 rounded-full flex items-center justify-center text-white font-bold text-lg">
+            {post.author.name[0]}
+          </div>
+          <div className="ml-4">
+            <div className="font-semibold text-lg">{post.author.name}</div>
+            <div className="text-gray-400 text-sm">
+              {new Date(post.createdAt).toLocaleString()}
+            </div>
           </div>
         </div>
-      </div>
-      <div className="text-gray-100 text-lg mb-4">{post.content}</div>
-      <div className="flex justify-between items-center">
-        <button
-          onClick={onLike}
-          className="text-teal-500 hover:text-teal-400 transition duration-300"
-        >
-          <i className="fas fa-heart"></i> Like
-        </button>
-        <form onSubmit={handleCommentSubmit} className="flex items-center space-x-2">
-          <input
-            type="text"
-            value={commentContent}
-            onChange={handleCommentChange}
-            placeholder="Add a comment..."
-            className="bg-gray-700 text-white placeholder-gray-400 rounded-full p-2 px-4 focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-300"
-          />
-          <button type="submit" className="bg-teal-500 text-white px-4 py-1 rounded-full hover:bg-teal-600 focus:outline-none transition duration-300">
-            Comment
+        <div className="text-gray-100 text-lg mb-4">{post.content}</div>
+        <div className="flex justify-between items-center">
+          <button
+            onClick={onLike}
+            className="text-teal-500 hover:text-teal-400 transition duration-300"
+          >
+            <i className="fas fa-heart"></i> Like
           </button>
-        </form>
+          <form onSubmit={handleCommentSubmit} className="flex items-center space-x-2">
+            <input
+              type="text"
+              value={commentContent}
+              onChange={handleCommentChange}
+              placeholder="Add a comment..."
+              className="bg-gray-700 text-white placeholder-gray-400 rounded-full p-2 px-4 focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-300"
+            />
+            <button type="submit" className="bg-teal-500 text-white px-4 py-1 rounded-full hover:bg-teal-600 focus:outline-none transition duration-300">
+              Comment
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
