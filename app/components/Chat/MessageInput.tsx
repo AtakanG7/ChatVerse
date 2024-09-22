@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Smile, Paperclip, Image, Send, Mic } from 'lucide-react';
+import { Smile, Paperclip, Image, Send, Mic, MoreHorizontal } from 'lucide-react';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 
@@ -11,6 +11,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
   const [currentMessage, setCurrentMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -42,16 +43,13 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
     }
   };
 
+  const toggleMobileMenu = () => {
+    setShowMobileMenu(!showMobileMenu);
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="p-4 bg-gray-800 relative">
-      <div className="flex items-center bg-gray-700 rounded-full overflow-hidden p-3 shadow-md gap-2">
-        <button
-          type="button"
-          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-          className="text-gray-400 hover:text-white focus:outline-none p-2 rounded-full bg-gray-600 hover:bg-blue-600 transition-colors"
-        >
-          <Smile className="w-6 h-6" />
-        </button>
+    <form onSubmit={handleSubmit} className="p-4 bg-gray-800 relative" style={{ zIndex: 18 }}>
+      <div className="flex items-center bg-gray-700 rounded-lg overflow-hidden p-3 shadow-md">
         <input
           ref={inputRef}
           type="text"
@@ -60,35 +58,84 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
           className="flex-1 bg-transparent text-white focus:outline-none px-3 py-2 rounded-lg"
           placeholder="Message..."
         />
-        <button
-          type="button"
-          onClick={() => triggerFileInput('image')}
-          className="text-gray-400 hover:text-white focus:outline-none p-2 rounded-full bg-gray-600 hover:bg-blue-600 transition-colors"
-        >
-          <Image className="w-6 h-6" />
-        </button>
-        <button
-          type="button"
-          onClick={() => triggerFileInput('all')}
-          className="text-gray-400 hover:text-white focus:outline-none p-2 rounded-full bg-gray-600 hover:bg-blue-600 transition-colors"
-        >
-          <Paperclip className="w-6 h-6" />
-        </button>
-        <button
-          type="button"
-          className="text-gray-400 hover:text-white focus:outline-none p-2 rounded-full bg-gray-600 hover:bg-blue-600 transition-colors"
-        >
-          <Mic className="w-6 h-6" />
-        </button>
-        <button
-          type="submit"
-          className={`text-white focus:outline-none p-2 rounded-full bg-gray-600 hover:bg-blue-600 transition-colors ${
-            currentMessage || files.length > 0 ? 'text-indigo-500 hover:text-indigo-600' : 'text-gray-400'
-          }`}
-        >
-          <Send className="w-6 h-6" />
-        </button>
+        <div className="flex items-center space-x-2">
+          <button
+            type="button"
+            onClick={toggleMobileMenu}
+            className="md:hidden text-gray-400 hover:text-white focus:outline-none p-2 rounded-full bg-gray-600 hover:bg-blue-600 transition-colors"
+          >
+            <MoreHorizontal className="w-6 h-6" />
+          </button>
+          <div className="hidden md:flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              className="text-gray-400 hover:text-white focus:outline-none p-2 rounded-full bg-gray-600 hover:bg-blue-600 transition-colors"
+            >
+              <Smile className="w-6 h-6" />
+            </button>
+            <button
+              type="button"
+              onClick={() => triggerFileInput('image')}
+              className="text-gray-400 hover:text-white focus:outline-none p-2 rounded-full bg-gray-600 hover:bg-blue-600 transition-colors"
+            >
+              <Image className="w-6 h-6" />
+            </button>
+            <button
+              type="button"
+              onClick={() => triggerFileInput('all')}
+              className="text-gray-400 hover:text-white focus:outline-none p-2 rounded-full bg-gray-600 hover:bg-blue-600 transition-colors"
+            >
+              <Paperclip className="w-6 h-6" />
+            </button>
+            <button
+              type="button"
+              className="text-gray-400 hover:text-white focus:outline-none p-2 rounded-full bg-gray-600 hover:bg-blue-600 transition-colors"
+            >
+              <Mic className="w-6 h-6" />
+            </button>
+          </div>
+          <button
+            type="submit"
+            className={`text-white focus:outline-none p-2 rounded-full bg-gray-600 hover:bg-blue-600 transition-colors ${
+              currentMessage || files.length > 0 ? 'text-indigo-500 hover:text-indigo-600' : 'text-gray-400'
+            }`}
+          >
+            <Send className="w-6 h-6" />
+          </button>
+        </div>
       </div>
+      {showMobileMenu && (
+        <div className="md:hidden flex justify-center mt-2 space-x-2">
+          <button
+            type="button"
+            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            className="text-gray-400 hover:text-white focus:outline-none p-2 rounded-full bg-gray-600 hover:bg-blue-600 transition-colors"
+          >
+            <Smile className="w-6 h-6" />
+          </button>
+          <button
+            type="button"
+            onClick={() => triggerFileInput('image')}
+            className="text-gray-400 hover:text-white focus:outline-none p-2 rounded-full bg-gray-600 hover:bg-blue-600 transition-colors"
+          >
+            <Image className="w-6 h-6" />
+          </button>
+          <button
+            type="button"
+            onClick={() => triggerFileInput('all')}
+            className="text-gray-400 hover:text-white focus:outline-none p-2 rounded-full bg-gray-600 hover:bg-blue-600 transition-colors"
+          >
+            <Paperclip className="w-6 h-6" />
+          </button>
+          <button
+            type="button"
+            className="text-gray-400 hover:text-white focus:outline-none p-2 rounded-full bg-gray-600 hover:bg-blue-600 transition-colors"
+          >
+            <Mic className="w-6 h-6" />
+          </button>
+        </div>
+      )}
       {showEmojiPicker && (
         <div className="absolute bottom-full mb-2 right-0 shadow-lg rounded-lg overflow-hidden">
           <Picker data={data} onEmojiSelect={handleEmojiSelect} theme="dark" />

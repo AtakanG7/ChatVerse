@@ -11,11 +11,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Atakan Gül - Chat, Collaborate, and Find Friends in Real-time",
     description: "Engage in real-time conversations with Atakan Gül's modern chat application. Connect, collaborate, and find friends using Next.js and WebSocket.",
-    url: "https://yourwebsite.com", // Replace with your app URL
+    url: "https://chat.atakangul.com",
     type: "website",
     images: [
       {
-        url: "https://yourwebsite.com/og-image.jpg", // Replace with your OG image URL
+        url: "https://chat.atakangul.com/img/favicon.svg", 
         width: 800,
         height: 600,
         alt: "Chat App by Atakan Gül",
@@ -32,8 +32,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="icon" href="https://chat.atakangul.com/img/favicon.svg" type="image/svg+xml" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="canonical" href="https://yourwebsite.com" />
+        <link rel="canonical" href="https://chat.atakangul.com" />
       </head>
       <body className={inter.className}>{children}</body>
     </html>
